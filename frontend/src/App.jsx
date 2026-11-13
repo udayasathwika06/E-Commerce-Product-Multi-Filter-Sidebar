@@ -3,6 +3,7 @@ import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import ProductGrid from './components/ProductGrid';
 import CartDrawer from './components/CartDrawer';
+import QuickViewModal from './components/QuickViewModal';
 import { fetchFilteredProducts, fetchInventoryMetadata } from './services/api';
 
 const DEFAULT_FILTERS = {
@@ -23,7 +24,7 @@ export default function App() {
   const [error, setError] = useState(null);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
-  // Cart state management
+  // Cart state
   const [cartItems, setCartItems] = useState(() => {
     try {
       const saved = localStorage.getItem('marketvibe_cart');
@@ -34,14 +35,42 @@ export default function App() {
   });
   const [isCartOpen, setIsCartOpen] = useState(false);
 
-  // Sync cart to localStorage
+  // Wishlist state
+  const [favorites, setFavorites] = useState(() => {
+    try {
+      const saved = localStorage.getItem('marketvibe_favs');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  // Quick View Modal state
+  const [quickViewProduct, setQuickViewProduct] = useState(null);
+
+  // Toast notification
+  const [toast, setToast] = useState(null);
+  const showToast = (msg) => {
+    setToast(msg);
+    setTimeout(() => setToast(null), 2500);
+  };
+
+  // Sync state to localStorage
   useEffect(() => {
     try {
       localStorage.setItem('marketvibe_cart', JSON.stringify(cartItems));
     } catch (e) {
-      console.warn('Could not save cart to localStorage', e);
+      console.warn('Could not save cart', e);
     }
   }, [cartItems]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('marketvibe_favs', JSON.stringify(favorites));
+    } catch (e) {
+      console.warn('Could not save favorites', e);
+    }
+  }, [favorites]);
 
   // Catalog metadata (available categories, global min/max price in INR)
   const [metadata, setMetadata] = useState({
@@ -81,7 +110,6 @@ export default function App() {
     setLoading(true);
     setError(null);
 
-    // Debounce slightly if user is dragging slider or typing fast
     const timer = setTimeout(() => {
       fetchFilteredProducts(filters, controller.signal)
         .then((data) => {
@@ -120,7 +148,7 @@ export default function App() {
     return count;
   }, [filters, metadata.priceRange]);
 
-  // Cart actions: Add, Update Quantity, Remove, Clear
+  // Cart actions
   const handleAddToCart = useCallback((product) => {
     setCartItems((prev) => {
       const existing = prev.find((item) => item.id === product.id);
@@ -131,7 +159,7 @@ export default function App() {
       }
       return [...prev, { ...product, quantity: 1 }];
     });
-    // Open cart drawer immediately to show added product
+    showToast(`Added "${product.name.slice(0, 24)}..." to cart!`);
     setIsCartOpen(true);
   }, []);
 
@@ -153,6 +181,20 @@ export default function App() {
 
   const handleClearCart = useCallback(() => {
     setCartItems([]);
+  }, []);
+
+  // Wishlist toggle
+  const handleToggleFavorite = useCallback((productId) => {
+    setFavorites((prev) => {
+      const isFav = prev.includes(productId);
+      if (isFav) {
+        showToast('Removed from wishlist');
+        return prev.filter((id) => id !== productId);
+      } else {
+        showToast('Saved to wishlist ❤️');
+        return [...prev, productId];
+      }
+    });
   }, []);
 
   // Filter handlers
@@ -179,7 +221,7 @@ export default function App() {
   const handleResetFilters = useCallback(() => {
     setFilters({
       ...DEFAULT_FILTERS,
-      sortBy: filters.sortBy // keep user's chosen sort preference
+      sortBy: filters.sortBy
     });
   }, [filters.sortBy]);
 
@@ -221,6 +263,14 @@ export default function App() {
         cartCount={cartTotalQuantity}
         cartTotal={cartSubtotal}
         onOpenCart={() => setIsCartOpen(true)}
+        wishlistCount={favorites.length}
+        onOpenWishlist={() => {
+          if (favorites.length === 0) {
+            showToast('Your wishlist is empty. Tap any ❤️ to save items!');
+          } else {
+            showToast(`You have ${favorites.length} saved item(s) in wishlist!`);
+          }
+        }}
       />
 
       {/* Main Layout: Sticky Sidebar + Dynamic Inventory Grid */}
@@ -268,9 +318,22 @@ export default function App() {
             onResetRating={handleResetRating}
             onClearSearch={handleClearSearch}
             onAddToCart={handleAddToCart}
+            onQuickView={(p) => setQuickViewProduct(p)}
+            favorites={favorites}
+            onToggleFavorite={handleToggleFavorite}
           />
         </div>
       </main>
+
+      {/* Quick View Modal */}
+      <QuickViewModal
+        product={quickViewProduct}
+        isOpen={Boolean(quickViewProduct)}
+        onClose={() => setQuickViewProduct(null)}
+        onAddToCart={handleAddToCart}
+        isFavorite={quickViewProduct ? favorites.includes(quickViewProduct.id) : false}
+        onToggleFavorite={handleToggleFavorite}
+      />
 
       {/* Slide-over Cart Drawer */}
       <CartDrawer
@@ -282,7 +345,14 @@ export default function App() {
         onClearCart={handleClearCart}
       />
 
-      {/* Clean Footer without port info */}
+      {/* Toast Notification */}
+      {toast && (
+        <div className="fixed bottom-6 right-6 z-50 bg-slate-900 text-white px-4 py-2.5 rounded-2xl shadow-xl text-xs font-medium flex items-center gap-2 animate-in slide-in-from-bottom-3 duration-200 border border-slate-800">
+          <span>{toast}</span>
+        </div>
+      )}
+
+      {/* Clean Footer */}
       <footer className="border-t border-slate-200 bg-white py-6 mt-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
           <p>© 2026 MARKETVIBE Inc. All rights reserved.</p>

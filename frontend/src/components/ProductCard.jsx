@@ -1,7 +1,13 @@
 import React, { useState } from 'react';
-import { Star, CheckCircle, ShoppingBag } from 'lucide-react';
+import { Star, CheckCircle, ShoppingBag, Eye, Heart } from 'lucide-react';
 
-export default function ProductCard({ product, onAddToCart }) {
+export default function ProductCard({
+  product,
+  onAddToCart,
+  onQuickView,
+  isFavorite = false,
+  onToggleFavorite
+}) {
   const [added, setAdded] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
 
@@ -12,6 +18,13 @@ export default function ProductCard({ product, onAddToCart }) {
       onAddToCart(product);
     }
     setTimeout(() => setAdded(false), 1200);
+  };
+
+  const handleFavoriteClick = (e) => {
+    e.stopPropagation();
+    if (onToggleFavorite) {
+      onToggleFavorite(product.id);
+    }
   };
 
   // Render 5 stars based on rating
@@ -38,14 +51,38 @@ export default function ProductCard({ product, onAddToCart }) {
     );
   };
 
+  const isTopRated = product.rating >= 4.8;
+
   return (
-    <div className="group bg-white rounded-2xl border border-slate-200/80 hover:border-indigo-300 hover:shadow-lg hover:shadow-indigo-500/5 transition-all duration-200 flex flex-col overflow-hidden relative">
+    <div
+      onClick={() => onQuickView && onQuickView(product)}
+      className="group bg-white rounded-2xl border border-slate-200/80 hover:border-indigo-300 hover:shadow-lg hover:shadow-indigo-500/5 transition-all duration-200 flex flex-col overflow-hidden relative cursor-pointer"
+    >
       {/* Category Pill Tag */}
-      <div className="absolute top-3 left-3 z-10">
-        <span className="px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider bg-white/90 backdrop-blur-md text-slate-700 rounded-lg shadow-sm border border-slate-200/50">
+      <div className="absolute top-3 left-3 z-10 flex flex-col gap-1 items-start">
+        <span className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider bg-white/95 backdrop-blur-md text-slate-700 rounded-lg shadow-sm border border-slate-200/50">
           {product.category}
         </span>
+        {isTopRated && (
+          <span className="px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider bg-amber-500 text-white rounded-md shadow-sm">
+            ★ Top Rated
+          </span>
+        )}
       </div>
+
+      {/* Wishlist Heart Button */}
+      <button
+        type="button"
+        onClick={handleFavoriteClick}
+        className={`absolute top-3 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center transition-all ${
+          isFavorite
+            ? 'bg-rose-50 text-rose-500 shadow-sm'
+            : 'bg-white/80 backdrop-blur-md text-slate-400 hover:text-rose-500 opacity-0 group-hover:opacity-100'
+        }`}
+        title={isFavorite ? 'Remove from wishlist' : 'Save to wishlist'}
+      >
+        <Heart className={`w-4 h-4 ${isFavorite ? 'fill-rose-500' : ''}`} />
+      </button>
 
       {/* Image Thumbnail */}
       <div className="relative aspect-[4/3] bg-slate-100 overflow-hidden">
@@ -61,6 +98,14 @@ export default function ProductCard({ product, onAddToCart }) {
             imgLoaded ? 'opacity-100' : 'opacity-0'
           }`}
         />
+
+        {/* Quick View Hover Pill */}
+        <div className="absolute inset-0 bg-slate-900/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/95 backdrop-blur text-slate-900 text-xs font-semibold shadow-md transform translate-y-2 group-hover:translate-y-0 transition-transform">
+            <Eye className="w-3.5 h-3.5 text-indigo-600" />
+            <span>Quick View</span>
+          </span>
+        </div>
       </div>
 
       {/* Card Content Body */}

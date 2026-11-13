@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShoppingBag, Search, SlidersHorizontal, ShoppingCart } from 'lucide-react';
+import { ShoppingBag, Search, SlidersHorizontal, ShoppingCart, Heart } from 'lucide-react';
 
 export default function Header({
   searchQuery,
@@ -9,7 +9,9 @@ export default function Header({
   onToggleMobileSidebar,
   cartCount = 0,
   cartTotal = 0,
-  onOpenCart
+  onOpenCart,
+  wishlistCount = 0,
+  onOpenWishlist
 }) {
   return (
     <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm transition-all">
@@ -32,9 +34,6 @@ export default function Header({
                 <span className="text-xl font-black tracking-tight text-slate-900 flex items-center gap-1">
                   MARKET<span className="text-indigo-600">VIBE</span>
                 </span>
-                <p className="text-[11px] text-slate-400 font-medium hidden sm:block -mt-1">
-                  High-Traffic Multi-Filter Marketplace
-                </p>
               </div>
             </div>
           </div>
@@ -62,14 +61,29 @@ export default function Header({
             </div>
           </div>
 
-          {/* Right Header: Inventory Counter & Cart Action */}
-          <div className="flex items-center gap-4 text-sm">
-            <div className="hidden md:flex flex-col text-right">
-              <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Inventory</span>
+          {/* Right Header Actions */}
+          <div className="flex items-center gap-3 text-sm">
+            <div className="hidden md:flex flex-col text-right mr-1">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Catalog</span>
               <span className="text-xs font-bold text-slate-800">
                 {matchedCount} <span className="text-slate-400 font-normal">/ {totalProducts} items</span>
               </span>
             </div>
+
+            {/* Wishlist Button */}
+            <button
+              type="button"
+              onClick={onOpenWishlist}
+              className="relative p-2.5 rounded-xl border border-slate-200 hover:border-slate-300 text-slate-600 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+              title="View Wishlist"
+            >
+              <Heart className="w-4 h-4" />
+              {wishlistCount > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 bg-rose-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                  {wishlistCount}
+                </span>
+              )}
+            </button>
 
             {/* Shopping Cart Button */}
             <button

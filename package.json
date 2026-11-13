@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "High-traffic e-commerce multi-filter sidebar with server-side combinatorial filtering and real-time state feedback",
   "scripts": {
+    "start": "node backend/src/server.js",
+    "build": "cd frontend && npm install && npm run build",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
     "dev:backend": "cd backend && npm run dev",
     "dev:frontend": "cd frontend && npm run dev",
     "test:backend": "cd backend && npm test",
@@ -20,4 +23,3 @@
   "author": "Antigravity",
   "license": "MIT"
 }
-

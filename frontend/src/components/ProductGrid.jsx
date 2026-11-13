@@ -18,7 +18,10 @@ export default function ProductGrid({
   onResetPrice,
   onResetRating,
   onClearSearch,
-  onAddToCart
+  onAddToCart,
+  onQuickView,
+  favorites = [],
+  onToggleFavorite
 }) {
   return (
     <section className="flex-1 min-w-0" aria-label="Product Catalog">
@@ -72,7 +75,14 @@ export default function ProductGrid({
         // Dynamic Product Inventory Grid
         <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 transition-opacity duration-150 ${loading ? 'opacity-70' : 'opacity-100'}`}>
           {products.map((product) => (
-            <ProductCard key={product.id} product={product} onAddToCart={onAddToCart} />
+            <ProductCard
+              key={product.id}
+              product={product}
+              onAddToCart={onAddToCart}
+              onQuickView={onQuickView}
+              isFavorite={favorites.includes(product.id)}
+              onToggleFavorite={onToggleFavorite}
+            />
           ))}
         </div>
       )}
