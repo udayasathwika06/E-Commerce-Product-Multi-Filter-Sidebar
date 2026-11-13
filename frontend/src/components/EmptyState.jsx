@@ -27,3 +27,4 @@ export default function EmptyState({ onResetFilters }) {
     </div>
   );
 }
+

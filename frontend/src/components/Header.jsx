@@ -1,7 +1,16 @@
 import React from 'react';
-import { ShoppingBag, Search, SlidersHorizontal, Sparkles } from 'lucide-react';
+import { ShoppingBag, Search, SlidersHorizontal, ShoppingCart } from 'lucide-react';
 
-export default function Header({ searchQuery, onSearchChange, totalProducts, matchedCount, onToggleMobileSidebar }) {
+export default function Header({
+  searchQuery,
+  onSearchChange,
+  totalProducts,
+  matchedCount,
+  onToggleMobileSidebar,
+  cartCount = 0,
+  cartTotal = 0,
+  onOpenCart
+}) {
   return (
     <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm transition-all">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -20,11 +29,8 @@ export default function Header({ searchQuery, onSearchChange, totalProducts, mat
                 <ShoppingBag className="w-5 h-5" />
               </div>
               <div>
-                <span className="text-xl font-black tracking-tight text-slate-900 flex items-center gap-1.5">
+                <span className="text-xl font-black tracking-tight text-slate-900 flex items-center gap-1">
                   MARKET<span className="text-indigo-600">VIBE</span>
-                  <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                    Live Server
-                  </span>
                 </span>
                 <p className="text-[11px] text-slate-400 font-medium hidden sm:block -mt-1">
                   High-Traffic Multi-Filter Marketplace
@@ -56,18 +62,34 @@ export default function Header({ searchQuery, onSearchChange, totalProducts, mat
             </div>
           </div>
 
-          {/* Right Status & Meta */}
+          {/* Right Header: Inventory Counter & Cart Action */}
           <div className="flex items-center gap-4 text-sm">
             <div className="hidden md:flex flex-col text-right">
-              <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">Inventory</span>
-              <span className="text-sm font-semibold text-slate-800">
+              <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Inventory</span>
+              <span className="text-xs font-bold text-slate-800">
                 {matchedCount} <span className="text-slate-400 font-normal">/ {totalProducts} items</span>
               </span>
             </div>
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-50 text-indigo-700 text-xs font-semibold">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Combinatorial</span> Engine
-            </div>
+
+            {/* Shopping Cart Button */}
+            <button
+              type="button"
+              onClick={onOpenCart}
+              className="relative flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-indigo-600 text-white shadow-sm transition-all active:scale-95"
+              aria-label="View shopping cart"
+            >
+              <div className="relative">
+                <ShoppingCart className="w-4 h-4" />
+                {cartCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-rose-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center animate-pulse">
+                    {cartCount > 99 ? '99+' : cartCount}
+                  </span>
+                )}
+              </div>
+              <span className="text-xs font-semibold hidden sm:inline">
+                {cartCount > 0 ? `₹${cartTotal.toLocaleString('en-IN')}` : 'Cart'}
+              </span>
+            </button>
           </div>
         </div>
       </div>

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import ProductGrid from './components/ProductGrid';
+import CartDrawer from './components/CartDrawer';
 import { fetchFilteredProducts, fetchInventoryMetadata } from './services/api';
 
 const DEFAULT_FILTERS = {
@@ -22,10 +23,30 @@ export default function App() {
   const [error, setError] = useState(null);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
-  // Catalog metadata (available categories, global min/max price)
+  // Cart state management
+  const [cartItems, setCartItems] = useState(() => {
+    try {
+      const saved = localStorage.getItem('marketvibe_cart');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [isCartOpen, setIsCartOpen] = useState(false);
+
+  // Sync cart to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('marketvibe_cart', JSON.stringify(cartItems));
+    } catch (e) {
+      console.warn('Could not save cart to localStorage', e);
+    }
+  }, [cartItems]);
+
+  // Catalog metadata (available categories, global min/max price in INR)
   const [metadata, setMetadata] = useState({
     categories: [],
-    priceRange: { min: 0, max: 1000 },
+    priceRange: { min: 299, max: 80000 },
     totalProducts: 0
   });
 
@@ -50,7 +71,6 @@ export default function App() {
   }, []);
 
   // 2. Fetch products whenever any filter or sorting criteria changes
-  // Server-side filtering logic ensures all business logic stays on the backend
   useEffect(() => {
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
@@ -100,7 +120,42 @@ export default function App() {
     return count;
   }, [filters, metadata.priceRange]);
 
-  // Handlers for instant filter updates
+  // Cart actions: Add, Update Quantity, Remove, Clear
+  const handleAddToCart = useCallback((product) => {
+    setCartItems((prev) => {
+      const existing = prev.find((item) => item.id === product.id);
+      if (existing) {
+        return prev.map((item) =>
+          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+        );
+      }
+      return [...prev, { ...product, quantity: 1 }];
+    });
+    // Open cart drawer immediately to show added product
+    setIsCartOpen(true);
+  }, []);
+
+  const handleUpdateQuantity = useCallback((productId, quantity) => {
+    if (quantity <= 0) {
+      setCartItems((prev) => prev.filter((item) => item.id !== productId));
+    } else {
+      setCartItems((prev) =>
+        prev.map((item) =>
+          item.id === productId ? { ...item, quantity } : item
+        )
+      );
+    }
+  }, []);
+
+  const handleRemoveFromCart = useCallback((productId) => {
+    setCartItems((prev) => prev.filter((item) => item.id !== productId));
+  }, []);
+
+  const handleClearCart = useCallback(() => {
+    setCartItems([]);
+  }, []);
+
+  // Filter handlers
   const handleCategoryChange = useCallback((newCategories) => {
     setFilters((prev) => ({ ...prev, categories: newCategories }));
   }, []);
@@ -151,6 +206,9 @@ export default function App() {
     setFilters((prev) => ({ ...prev, search: '' }));
   }, []);
 
+  const cartTotalQuantity = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  const cartSubtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col text-slate-800">
       {/* Top Header */}
@@ -160,6 +218,9 @@ export default function App() {
         totalProducts={totalProducts}
         matchedCount={matchedCount}
         onToggleMobileSidebar={() => setMobileSidebarOpen(true)}
+        cartCount={cartTotalQuantity}
+        cartTotal={cartSubtotal}
+        onOpenCart={() => setIsCartOpen(true)}
       />
 
       {/* Main Layout: Sticky Sidebar + Dynamic Inventory Grid */}
@@ -206,25 +267,26 @@ export default function App() {
             onResetPrice={handleResetPrice}
             onResetRating={handleResetRating}
             onClearSearch={handleClearSearch}
+            onAddToCart={handleAddToCart}
           />
         </div>
       </main>
 
-      {/* Footer */}
+      {/* Slide-over Cart Drawer */}
+      <CartDrawer
+        isOpen={isCartOpen}
+        onClose={() => setIsCartOpen(false)}
+        cartItems={cartItems}
+        onUpdateQuantity={handleUpdateQuantity}
+        onRemoveItem={handleRemoveFromCart}
+        onClearCart={handleClearCart}
+      />
+
+      {/* Clean Footer without port info */}
       <footer className="border-t border-slate-200 bg-white py-6 mt-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-          <p>© 2026 MARKETVIBE Inc. Server-driven combinatorial multi-filter architecture.</p>
-          <div className="flex items-center gap-4">
-            <span className="inline-flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-500" />
-              REST API Server: Port 5000
-            </span>
-            <span>•</span>
-            <span className="inline-flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-indigo-500" />
-              Client: Port 3000
-            </span>
-          </div>
+          <p>© 2026 MARKETVIBE Inc. All rights reserved.</p>
+          <p className="text-slate-400">High-Traffic E-Commerce Multi-Filter Platform</p>
         </div>
       </footer>
     </div>

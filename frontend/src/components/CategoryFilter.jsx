@@ -92,3 +92,4 @@ export default function CategoryFilter({ availableCategories = [], selectedCateg
     </div>
   );
 }
+

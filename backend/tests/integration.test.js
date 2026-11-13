@@ -44,9 +44,9 @@ test('Category Checklist Filtering (Single & Multiple)', async () => {
   assert.ok(json2.data.products.length > json1.data.products.length);
 });
 
-test('Dual-point Price Boundary Slider', async () => {
-  const min = 50;
-  const max = 200;
+test('Dual-point Price Boundary Slider (INR)', async () => {
+  const min = 2000;
+  const max = 15000;
   const res = await fetch(`${BACKEND_URL}/products?minPrice=${min}&maxPrice=${max}`);
   const json = await res.json();
   assert.ok(json.data.products.length > 0);
@@ -61,18 +61,18 @@ test('Minimum Star Rating Radio Selection (1-5 stars)', async () => {
 });
 
 test('Combinatorial Intersect Filtering Array: simultaneously satisfies all criteria', async () => {
-  const res = await fetch(`${BACKEND_URL}/products?categories=Footwear&minPrice=100&maxPrice=250&minRating=4.6`);
+  const res = await fetch(`${BACKEND_URL}/products?categories=Footwear&minPrice=5000&maxPrice=20000&minRating=4.6`);
   const json = await res.json();
   assert.ok(json.data.products.length > 0);
   json.data.products.forEach(p => {
     assert.equal(p.category.toLowerCase(), 'footwear');
-    assert.ok(p.price >= 100 && p.price <= 250);
+    assert.ok(p.price >= 5000 && p.price <= 20000);
     assert.ok(p.rating >= 4.6);
   });
 });
 
 test('Zero items match scenario renders empty array for "Reset filters" screen', async () => {
-  const res = await fetch(`${BACKEND_URL}/products?categories=Electronics&minPrice=1100&minRating=5.0`);
+  const res = await fetch(`${BACKEND_URL}/products?categories=Electronics&minPrice=90000&minRating=5.0`);
   const json = await res.json();
   assert.equal(json.data.matchedCount, 0);
   assert.equal(json.data.products.length, 0);

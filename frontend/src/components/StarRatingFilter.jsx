@@ -90,3 +90,4 @@ export default function StarRatingFilter({ currentRating, onChange }) {
     </div>
   );
 }
+

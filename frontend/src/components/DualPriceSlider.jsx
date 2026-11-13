@@ -2,7 +2,7 @@ import React, { useId } from 'react';
 
 export default function DualPriceSlider({
   minBound = 0,
-  maxBound = 1000,
+  maxBound = 80000,
   currentMin,
   currentMax,
   onChange
@@ -18,12 +18,12 @@ export default function DualPriceSlider({
   const maxPercent = Math.max(0, Math.min(100, ((effectiveMax - minBound) / (maxBound - minBound)) * 100));
 
   const handleMinSliderChange = (e) => {
-    const value = Math.min(Number(e.target.value), effectiveMax - 1);
+    const value = Math.min(Number(e.target.value), effectiveMax - 100);
     onChange(value, effectiveMax);
   };
 
   const handleMaxSliderChange = (e) => {
-    const value = Math.max(Number(e.target.value), effectiveMin + 1);
+    const value = Math.max(Number(e.target.value), effectiveMin + 100);
     onChange(effectiveMin, value);
   };
 
@@ -57,7 +57,7 @@ export default function DualPriceSlider({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
-          Price Range
+          Price Range (₹)
         </h3>
         {isCustomPrice && (
           <button
@@ -91,7 +91,7 @@ export default function DualPriceSlider({
             type="range"
             min={minBound}
             max={maxBound}
-            step={5}
+            step={250}
             value={effectiveMin}
             onChange={handleMinSliderChange}
             aria-label="Minimum price"
@@ -102,7 +102,7 @@ export default function DualPriceSlider({
             type="range"
             min={minBound}
             max={maxBound}
-            step={5}
+            step={250}
             value={effectiveMax}
             onChange={handleMaxSliderChange}
             aria-label="Maximum price"
@@ -133,7 +133,7 @@ export default function DualPriceSlider({
           </label>
           <div className="relative rounded-xl border border-slate-200 bg-white focus-within:border-indigo-600 focus-within:ring-2 focus-within:ring-indigo-500/20 transition-all">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400">
-              $
+              ₹
             </span>
             <input
               type="number"
@@ -152,7 +152,7 @@ export default function DualPriceSlider({
           </label>
           <div className="relative rounded-xl border border-slate-200 bg-white focus-within:border-indigo-600 focus-within:ring-2 focus-within:ring-indigo-500/20 transition-all">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400">
-              $
+              ₹
             </span>
             <input
               type="number"
@@ -166,14 +166,14 @@ export default function DualPriceSlider({
         </div>
       </div>
 
-      {/* Quick Price Preset Chips */}
+      {/* Quick Price Preset Chips in INR */}
       <div className="flex flex-wrap gap-1.5 pt-1">
         {[
           { label: 'All', min: minBound, max: maxBound },
-          { label: '< $50', min: minBound, max: 50 },
-          { label: '$50-$150', min: 50, max: 150 },
-          { label: '$150-$500', min: 150, max: 500 },
-          { label: '$500+', min: 500, max: maxBound }
+          { label: '< ₹2,000', min: minBound, max: 2000 },
+          { label: '₹2K - ₹10K', min: 2000, max: 10000 },
+          { label: '₹10K - ₹30K', min: 10000, max: 30000 },
+          { label: '₹30K+', min: 30000, max: maxBound }
         ].map((preset) => {
           const isActive = effectiveMin === preset.min && effectiveMax === preset.max;
           return (

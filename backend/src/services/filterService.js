@@ -231,3 +231,4 @@ export function getInventoryMetadata(inventory) {
     totalProducts: inventory.length
   };
 }
+

@@ -62,3 +62,4 @@ export async function fetchInventoryMetadata() {
   const json = await response.json();
   return json.data;
 }
+

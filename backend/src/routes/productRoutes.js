@@ -7,3 +7,4 @@ router.get('/products', getFilteredProducts);
 router.get('/products/meta', getMetadata);
 
 export default router;
+

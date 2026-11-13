@@ -44,10 +44,12 @@ export default function ActiveFilterPills({
         </span>
       ))}
 
-      {/* Price Pill */}
+      {/* Price Pill (INR) */}
       {isPriceCustom && (
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-          <span>${filters.minPrice || priceRangeBounds.min} - ${filters.maxPrice || priceRangeBounds.max}</span>
+          <span>
+            ₹{Number(filters.minPrice || priceRangeBounds.min).toLocaleString('en-IN')} - ₹{Number(filters.maxPrice || priceRangeBounds.max).toLocaleString('en-IN')}
+          </span>
           <button
             type="button"
             onClick={onResetPrice}

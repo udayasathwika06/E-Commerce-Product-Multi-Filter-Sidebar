@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
 import { Star, CheckCircle, ShoppingBag } from 'lucide-react';
 
-export default function ProductCard({ product }) {
+export default function ProductCard({ product, onAddToCart }) {
   const [added, setAdded] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
 
   const handleAddToCart = (e) => {
     e.stopPropagation();
     setAdded(true);
-    setTimeout(() => setAdded(false), 1800);
+    if (onAddToCart) {
+      onAddToCart(product);
+    }
+    setTimeout(() => setAdded(false), 1200);
   };
 
   // Render 5 stars based on rating
@@ -94,7 +97,7 @@ export default function ProductCard({ product }) {
               Price
             </span>
             <span className="text-lg font-black text-slate-900 tracking-tight">
-              ${Number(product.price).toFixed(2)}
+              ₹{Number(product.price).toLocaleString('en-IN')}
             </span>
           </div>
 

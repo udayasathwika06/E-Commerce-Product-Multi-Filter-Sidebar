@@ -115,3 +115,4 @@ test('Inventory Metadata computation', () => {
   assert.equal(meta.priceRange.max, 300);
   assert.equal(meta.categories.length, 3);
 });
+
