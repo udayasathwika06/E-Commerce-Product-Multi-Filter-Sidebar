@@ -152,3 +152,4 @@ Query parameters:
 
 ### `GET /api/products/meta`
 Returns dynamic inventory price bounds (`min`, `max`) and categories with item counts.
+
