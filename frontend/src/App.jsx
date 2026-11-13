@@ -4,6 +4,7 @@ import Sidebar from './components/Sidebar';
 import ProductGrid from './components/ProductGrid';
 import CartDrawer from './components/CartDrawer';
 import QuickViewModal from './components/QuickViewModal';
+import WelcomeBanner from './components/WelcomeBanner';
 import { fetchFilteredProducts, fetchInventoryMetadata } from './services/api';
 
 const DEFAULT_FILTERS = {
@@ -202,6 +203,18 @@ export default function App() {
     setFilters((prev) => ({ ...prev, categories: newCategories }));
   }, []);
 
+  const handleToggleSingleCategory = useCallback((categoryName) => {
+    setFilters((prev) => {
+      const exists = prev.categories.includes(categoryName);
+      return {
+        ...prev,
+        categories: exists
+          ? prev.categories.filter((c) => c !== categoryName)
+          : [...prev.categories, categoryName]
+      };
+    });
+  }, []);
+
   const handlePriceChange = useCallback((min, max) => {
     setFilters((prev) => ({ ...prev, minPrice: min, maxPrice: max }));
   }, []);
@@ -273,8 +286,14 @@ export default function App() {
         }}
       />
 
-      {/* Main Layout: Sticky Sidebar + Dynamic Inventory Grid */}
+      {/* Main Layout: Welcome Banner + Sticky Sidebar + Dynamic Grid */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Horizontal Welcome Component */}
+        <WelcomeBanner
+          onSelectCategory={handleToggleSingleCategory}
+          selectedCategories={filters.categories}
+        />
+
         {error && (
           <div className="mb-6 p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-sm flex items-center justify-between">
             <span>Unable to connect to filtering server: {error}</span>
