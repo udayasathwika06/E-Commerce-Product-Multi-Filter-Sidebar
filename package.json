@@ -4,12 +4,16 @@
   "description": "High-traffic e-commerce multi-filter sidebar with server-side combinatorial filtering and real-time state feedback",
   "scripts": {
     "start": "node backend/src/server.js",
-    "build": "cd frontend && npm install && npm run build",
+    "build": "npm --prefix backend install && npm --prefix frontend install && npm --prefix frontend run build",
     "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
     "dev:backend": "cd backend && npm run dev",
     "dev:frontend": "cd frontend && npm run dev",
     "test:backend": "cd backend && npm test",
     "build:frontend": "cd frontend && npm run build"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2"
   },
   "keywords": [
     "ecommerce",
