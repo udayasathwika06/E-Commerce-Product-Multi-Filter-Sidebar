@@ -1,4 +1,4 @@
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 /**
  * Fetches filtered and sorted products from the backend API.
@@ -62,4 +62,3 @@ export async function fetchInventoryMetadata() {
   const json = await response.json();
   return json.data;
 }
-
