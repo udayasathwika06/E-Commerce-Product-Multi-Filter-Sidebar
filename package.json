@@ -1,0 +1,22 @@
+{
+  "name": "ecommerce-product-multi-filter-sidebar",
+  "version": "1.0.0",
+  "description": "High-traffic e-commerce multi-filter sidebar with server-side combinatorial filtering and real-time state feedback",
+  "scripts": {
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "test:backend": "cd backend && npm test",
+    "build:frontend": "cd frontend && npm run build"
+  },
+  "keywords": [
+    "ecommerce",
+    "filter",
+    "multi-filter",
+    "sidebar",
+    "react",
+    "express",
+    "combinatorial-filtering"
+  ],
+  "author": "Antigravity",
+  "license": "MIT"
+}
