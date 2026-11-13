@@ -84,3 +84,4 @@ export default function WelcomeBanner({ onSelectCategory, selectedCategories = [
     </div>
   );
 }
+
