@@ -3,6 +3,7 @@ import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import ProductGrid from './components/ProductGrid';
 import CartDrawer from './components/CartDrawer';
+import WishlistDrawer from './components/WishlistDrawer';
 import QuickViewModal from './components/QuickViewModal';
 import WelcomeBanner from './components/WelcomeBanner';
 import { fetchFilteredProducts, fetchInventoryMetadata } from './services/api';
@@ -19,6 +20,7 @@ const DEFAULT_FILTERS = {
 export default function App() {
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
   const [products, setProducts] = useState([]);
+  const [allProductsCatalog, setAllProductsCatalog] = useState([]);
   const [totalProducts, setTotalProducts] = useState(0);
   const [matchedCount, setMatchedCount] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -45,6 +47,7 @@ export default function App() {
       return [];
     }
   });
+  const [isWishlistOpen, setIsWishlistOpen] = useState(false);
 
   // Quick View Modal state
   const [quickViewProduct, setQuickViewProduct] = useState(null);
@@ -82,7 +85,7 @@ export default function App() {
 
   const abortControllerRef = useRef(null);
 
-  // 1. Initial metadata fetch
+  // 1. Initial metadata fetch & all products cache
   useEffect(() => {
     let mounted = true;
     fetchInventoryMetadata()
@@ -95,6 +98,16 @@ export default function App() {
       .catch((err) => {
         console.error('Error fetching initial metadata:', err);
       });
+
+    // Also fetch full catalog once for persistent wishlist mapping
+    fetchFilteredProducts({})
+      .then((data) => {
+        if (mounted && data.products) {
+          setAllProductsCatalog(data.products);
+        }
+      })
+      .catch((err) => console.error('Full catalog fetch error:', err));
+
     return () => {
       mounted = false;
     };
@@ -184,7 +197,7 @@ export default function App() {
     setCartItems([]);
   }, []);
 
-  // Wishlist toggle
+  // Wishlist toggle & removal
   const handleToggleFavorite = useCallback((productId) => {
     setFavorites((prev) => {
       const isFav = prev.includes(productId);
@@ -197,6 +210,12 @@ export default function App() {
       }
     });
   }, []);
+
+  // Resolved list of favorited product objects
+  const wishlistProducts = useMemo(() => {
+    const pool = allProductsCatalog.length > 0 ? allProductsCatalog : products;
+    return pool.filter((p) => favorites.includes(p.id));
+  }, [favorites, allProductsCatalog, products]);
 
   // Filter handlers
   const handleCategoryChange = useCallback((newCategories) => {
@@ -277,13 +296,7 @@ export default function App() {
         cartTotal={cartSubtotal}
         onOpenCart={() => setIsCartOpen(true)}
         wishlistCount={favorites.length}
-        onOpenWishlist={() => {
-          if (favorites.length === 0) {
-            showToast('Your wishlist is empty. Tap any ❤️ to save items!');
-          } else {
-            showToast(`You have ${favorites.length} saved item(s) in wishlist!`);
-          }
-        }}
+        onOpenWishlist={() => setIsWishlistOpen(true)}
       />
 
       {/* Main Layout: Welcome Banner + Sticky Sidebar + Dynamic Grid */}
@@ -343,6 +356,16 @@ export default function App() {
           />
         </div>
       </main>
+
+      {/* Wishlist Drawer */}
+      <WishlistDrawer
+        isOpen={isWishlistOpen}
+        onClose={() => setIsWishlistOpen(false)}
+        wishlistProducts={wishlistProducts}
+        onRemoveFavorite={handleToggleFavorite}
+        onAddToCart={handleAddToCart}
+        onClearWishlist={() => setFavorites([])}
+      />
 
       {/* Quick View Modal */}
       <QuickViewModal
